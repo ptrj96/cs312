@@ -1,11 +1,9 @@
 class ArrayQueue(object):
     def __init__(self):
         self.queue = []
-        self.count = 0
     
     def insert(self, node, dist):
-        self.queue.append([dist, self.count, node])
-        self.count += 1
+        self.queue.append([dist, node])
 
     def delete_min(self):
         min_index = 0

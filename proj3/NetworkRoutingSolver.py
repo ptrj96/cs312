@@ -69,7 +69,7 @@ class NetworkRoutingSolver:
         self.dist[srcIndex] = 0 
         while self.queue.queue:
             try:
-                pop_dist, _, pop_node = self.queue.delete_min()
+                pop_dist, pop_node = self.queue.delete_min()
                 for edge in pop_node.neighbors:
                     if self.dist[edge.dest.node_id] > self.dist[pop_node.node_id] + edge.length:
                         self.dist[edge.dest.node_id] = self.dist[pop_node.node_id] + edge.length

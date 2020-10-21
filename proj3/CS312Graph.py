@@ -26,6 +26,9 @@ class CS312GraphNode:
         neighbors = [edge.dest.node_id for edge in self.neighbors]
         return 'Node(id:{},neighbors:{})'.format(self.node_id,neighbors)
 
+    def __lt__(self, cmp):
+        return self.node_id < cmp.node_id
+
 
 class CS312Graph:
     def __init__( self, nodeList, edgeList ):
