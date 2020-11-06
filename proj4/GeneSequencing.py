@@ -24,10 +24,6 @@ class GeneSequencing:
 
 	def __init__( self ):
 		pass
-	
-# This is the method called by the GUI.  _seq1_ and _seq2_ are two sequences to be aligned, _banded_ is a boolean that tells
-# you whether you should compute a banded alignment or full alignment, and _align_length_ tells you 
-# how many base pairs to use in computing the alignment
 
 	def align( self, seq1, seq2, banded, align_length):
 		self.banded = banded
@@ -37,30 +33,36 @@ class GeneSequencing:
 		alignment1 = ''
 		alignment2 = ''
 
-		if not banded:
-			score, alignment1, alignment2 = self._full_allign(seq1, seq2, align_length)
-		else:
+		if banded:
 			score, alignment2, alignment1 = self._banded_allign(seq1, seq2, align_length)
+		else:
+			score, alignment1, alignment2 = self._full_allign(seq1, seq2, align_length)
 		
 		return {'align_cost':score, 'seqi_first100':alignment1, 'seqj_first100':alignment2}
 
 	def _banded_allign(self, seq1, seq2, align_length):
 
+		# Set length to the align length if necessary
 		seq1_len = align_length + 1 if len(seq1) > align_length else len(seq1) + 1
 		seq2_len = align_length + 1 if len(seq2) > align_length else len(seq2) + 1
 		seq1 = seq1[:seq1_len-1]
 		seq2 = seq2[:seq2_len-1]
 
+		# Return if there is a large difference in lengths
 		if abs(seq1_len - seq2_len) > 3:
 			return math.inf, 'Can not align', 'Can not align'
 
+		# Initialize the scoring and path matrix to be n*k
 		scoring_matrix = [[None for i in range(7)] for j in range(seq1_len)]
 		path_matrix = [[None for i in range(7)] for j in range(seq1_len)]
 		scoring_matrix[0][0] = 0
-		test_seq1 = ''
-		test_seq2 = ''
 
+		# Populate the scoring and path matrix
+		# This operation is space and time O(n*k) where n is
+		# the length of seq1 and k is the window for banding
 		for i in range(seq1_len):
+			
+			# Set the window for each row i of the second sequence
 			seq2_win = ''
 			if i < 4:
 				seq2_win = '_' + seq2[:7]
@@ -69,8 +71,7 @@ class GeneSequencing:
 					seq2_win = seq2[i-3-1:7+(i-3)]
 				except:
 					seq2_win = seq2[i-3-1:]
-			# print(seq1)
-			# print(seq2_win)
+
 			for j in range(7): 
 				seq1_char = seq1[i-1]
 				seq2_char = ''
@@ -78,11 +79,11 @@ class GeneSequencing:
 					continue
 				else:
 					seq2_char = seq2_win[j]
-				# print(seq1_char, seq2_char)
 				left = 0
 				top = 0
 				diag = 0
 
+				# This fills out the scoring and path matrix
 				if i < 4:
 					if i == 0:
 						scoring_matrix[i][j] = INDEL*j
@@ -109,8 +110,6 @@ class GeneSequencing:
 					top = scoring_matrix[i-1][j+1]
 					diag = scoring_matrix[i-1][j]
 
-				test_seq1 += seq1_char
-				test_seq2 += seq2_char
 				left_miss = left + INDEL
 				top_miss = top + INDEL
 				diag = diag + SUB if seq1_char != seq2_char else diag + MATCH
@@ -124,13 +123,15 @@ class GeneSequencing:
 				else:
 					scoring_matrix[i][j] = diag
 					path_matrix[i][j] = 'D'
+
 		path_matrix[0][0] = 'S'
 
 		for x in scoring_matrix[-1]:
 			if x != None:
 				score = x
 		
-
+		# This backtracks through the path matrix to 
+		# make the alignments
 		i = align_length if len(seq1) > align_length else len(seq1)
 		j = 0
 
@@ -191,8 +192,13 @@ class GeneSequencing:
 		path_matrix = [[None for i in range(seq1_len)] for j in range(seq2_len)]
 		scoring_matrix[0][0] = 0
 
+		# Populate the scoring and path matrix
+		# This operation is space and time O(n*m) where n is
+		# the length of seq1 and m is the lenght of seq2
 		for i in range(seq2_len):
 			for j in range(seq1_len):
+
+				# This fills out the scoring and path matrix
 				if i == 0:
 					scoring_matrix[i][j] = INDEL*j
 					path_matrix[i][j] = 'L'
@@ -225,6 +231,8 @@ class GeneSequencing:
 
 		score = scoring_matrix[-1][-1]
 
+		# This backtracks through the path matrix to find the 
+		# alignments 
 		i = align_length if len(seq1) > align_length else len(seq1)
 		j = align_length if len(seq2) > align_length else len(seq2)
 		align_1 = []
