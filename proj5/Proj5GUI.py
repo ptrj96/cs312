@@ -370,7 +370,8 @@ class Proj5GUI( QMainWindow ):
 		('Default                            ','defaultRandomTour'), \
 		('Greedy','greedy'), \
 		('Branch and Bound','branchAndBound'), \
-		('Fancy','fancy') \
+		('Fancy','fancy'), \
+		('Divide and Conquer','divideAndConquer') \
 	]															# whitespace hack to get longest to display correctly
 
 	def initUI( self ):
@@ -397,7 +398,7 @@ class Proj5GUI( QMainWindow ):
 
 		self.curSeed		= QLineEdit('20')
 		self.curSeed.setFixedWidth(100)
-		self.size			= QLineEdit('15')
+		self.size			= QLineEdit('10')
 		self.size.setFixedWidth(50)
 		self.timeLimit		= QLineEdit('60')
 		self.timeLimit.setFixedWidth(50)
