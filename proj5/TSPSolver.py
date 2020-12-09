@@ -17,6 +17,7 @@ from TSPClasses import *
 import heapq
 import itertools
 import heapq
+import random
 
 
 class TSPSolver:
@@ -90,7 +91,17 @@ class TSPSolver:
 		start_time = time.time()
 		sortedCities = 	sorted(cities, key=lambda city: city._x)
 		bssf = self.divideAndConquerRec(sortedCities)
+		if bssf.cost == float('inf'):
+			sortedCities = sorted(cities, key=lambda city: city._y)
+			bssf = self.divideAndConquerRec(sortedCities)
+			if bssf.cost == float('inf'):
+				while time.time()-start_time < time_allowance:
+					random.shuffle(sortedCities)
+					bssf = self.divideAndConquerRec(sortedCities)
+					if bssf.cost < float('inf'):
+						break
 		end_time = time.time()
+		print(bssf.route)
 		results['cost'] = bssf.cost
 		results['time'] = end_time - start_time
 		results['count'] = 0
