@@ -85,8 +85,48 @@ class TSPSolver:
 		pass
 		
 	def divideAndConquer( self, time_allowance=60 ):
-		print('Divide and conquer')
-		pass
+		results = {}
+		cities = self._scenario.getCities()
+		start_time = time.time()
+		sortedCities = 	sorted(cities, key=lambda city: city._x)
+		bssf = self.divideAndConquerRec(sortedCities)
+		end_time = time.time()
+		results['cost'] = bssf.cost
+		results['time'] = end_time - start_time
+		results['count'] = 0
+		results['soln'] = bssf
+		results['max'] = None
+		results['total'] = None
+		results['pruned'] = None
+		return results
+
+	def divideAndConquerRec( self, cities ):
+		numCities = len(cities)
+		if numCities == 1:
+			return TSPSolution(cities)
+
+		firstCities = self.divideAndConquerRec(cities[:numCities//2])
+		secondCities = self.divideAndConquerRec(cities[numCities//2:])
+		return self.combineCities(firstCities, secondCities)	
+		
+
+	def combineCities(self, firstCities, secondCities):
+		bestRoute = []
+		firstCitiesArr = firstCities.route
+		secondCitiesArr = secondCities.route
+		bestRoute = TSPSolution(firstCitiesArr + secondCitiesArr)
+		bestCost = bestRoute.cost
+		for i in range(len(firstCitiesArr)):
+			for j in range(len(secondCitiesArr)):
+				tempRoute = firstCitiesArr[:i]
+				tempRoute += secondCitiesArr[j:]
+				tempRoute += secondCitiesArr[:j]
+				tempRoute += firstCitiesArr[i:]
+				tempSol = TSPSolution(tempRoute)
+				if tempSol.cost < bestCost:
+					bestCost = tempSol.cost
+					bestRoute = tempSol
+		return bestRoute
 
 	def branchAndBound(self, time_allowance=60.0):
 		results = {}
